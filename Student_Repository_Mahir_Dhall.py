@@ -85,11 +85,16 @@ class University:
 
         self.student_list: dict(str, "Student") = {}
         self.instructor_list: dict(str, "Instructor") = {}
+        self.grade_dict: dict('str', float) = {
+            'A': 4.0, 'A-': 3.75, 'B+': 3.25, 'B': 3.0, 'B-': 2.75, 'C+': 2.25,
+            'C': 2.0, 'C-': 0, 'D+': 0, 'D': 0, 'D-': 0, 'F': 0
+        }
         self.majors_list: dict(str, "Majors") = {}
         self.course_list: List[str] = []
         self.get_student_data()
         self.get_instructor_data()
         self.parse_grade_data()
+        self.calculate_gpa()
         self.parse_majors_data()
         # self.print_pretty_table()
 
@@ -148,16 +153,26 @@ class University:
                 else:
                     major_obj.electives_courses.append(major[2])
 
+    def calculate_gpa(self) -> None:
+        for student in self.student_list:
+            student_obj: "Student" = self.student_list[student]
+            sum_grade: float = 0.0
+            for course in student_obj.course_list:
+                sum_grade += self.grade_dict[course[1]]
+
+            student_obj.gpa = round(sum_grade/len(student_obj.course_list), 2)
+
     def print_pretty_table(self) -> None:
         """ Prints the two pretty tables """
         student_pt: PrettyTable = PrettyTable(
             field_names=['CWID', 'Name',
-                         'Completed Courses'])
+                         'Completed Courses', 'GPA'])
         for cwid in self.student_list:
             student_obj: "Student" = self.student_list[cwid]
             student_pt.add_row([student_obj.CWID, student_obj.Name,
                                 sorted([course[0] for course in
-                                        student_obj.course_list])])
+                                        student_obj.course_list]),
+                                student_obj.gpa])
         print('Student Summary')
         print(student_pt)
 
@@ -204,6 +219,7 @@ class Student:
         self.Name: str = Name
         self.Major: str = Major
         self.course_list: List[Tuple(str, str)] = []
+        self.gpa: float = 0.0
 
 
 class Instructor:
