@@ -96,6 +96,7 @@ class University:
         self.parse_grade_data()
         self.calculate_gpa()
         self.parse_majors_data()
+        self.oragnize_student_courses()
         # self.print_pretty_table()
 
     def get_instructor_data(self) -> None:
@@ -162,16 +163,33 @@ class University:
 
             student_obj.gpa = round(sum_grade/len(student_obj.course_list), 2)
 
+    def oragnize_student_courses(self) -> None:
+        for student in self.student_list:
+            student_obj: "Student" = self.student_list[student]
+            for course in student_obj.course_list:
+                if course[1] in ('A', 'A-', 'B+', 'B', 'B-', 'C+', 'C'):
+                    student_obj.completed_courses.append(course[0])
+            majors_obj: "Majors" = self.majors_list[student_obj.Major]
+            student_obj.remaining_required =\
+                list(set(majors_obj.required_courses) -
+                     set(student_obj.completed_courses))
+            student_obj.remaining_electives =\
+                list(set(majors_obj.electives_courses) -
+                     set(student_obj.completed_courses))
+
     def print_pretty_table(self) -> None:
         """ Prints the two pretty tables """
         student_pt: PrettyTable = PrettyTable(
-            field_names=['CWID', 'Name',
-                         'Completed Courses', 'GPA'])
+            field_names=['CWID', 'Name', 'Major',
+                         'Completed Courses', 'Remaining Required',
+                         'Remaining Electives', 'GPA'])
         for cwid in self.student_list:
             student_obj: "Student" = self.student_list[cwid]
             student_pt.add_row([student_obj.CWID, student_obj.Name,
-                                sorted([course[0] for course in
-                                        student_obj.course_list]),
+                                student_obj.Major,
+                                sorted(student_obj.completed_courses),
+                                sorted(student_obj.remaining_required),
+                                sorted(student_obj.remaining_electives),
                                 student_obj.gpa])
         print('Student Summary')
         print(student_pt)
@@ -219,6 +237,9 @@ class Student:
         self.Name: str = Name
         self.Major: str = Major
         self.course_list: List[Tuple(str, str)] = []
+        self.completed_courses: List[str] = []
+        self.remaining_required: List[str] = []
+        self.remaining_electives: List[str] = []
         self.gpa: float = 0.0
 
 
