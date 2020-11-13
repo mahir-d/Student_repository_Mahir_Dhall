@@ -1,6 +1,6 @@
 """
     Author: Mahir Dhall
-    Name: Homework9
+    Name: Homework10
     Description: This class creates a data repository of courses, students,
     and instructors. The system will be used to help students track their
     required courses, the courses they have successfully completed,
@@ -137,6 +137,7 @@ class University:
             instructor_obj.course_dict[courses[1]] += 1
 
     def parse_majors_data(self) -> None:
+        """ This function parses the major.txt file """
         for major in self.fr.file_reader(f'{self.directory_path}/majors.txt',
                                          3, '\t', True):
 
@@ -155,6 +156,7 @@ class University:
                     major_obj.electives_courses.append(major[2])
 
     def calculate_gpa(self) -> None:
+        """ This function calculates GPA for all students """
         for student in self.student_list:
             student_obj: "Student" = self.student_list[student]
             sum_grade: float = 0.0
@@ -164,6 +166,7 @@ class University:
             student_obj.gpa = round(sum_grade/len(student_obj.course_list), 2)
 
     def oragnize_student_courses(self) -> None:
+        """ This function calculates the remaingin courses for all students """
         for student in self.student_list:
             student_obj: "Student" = self.student_list[student]
             for course in student_obj.course_list:
@@ -178,7 +181,7 @@ class University:
                      set(student_obj.completed_courses))
 
     def print_pretty_table(self) -> None:
-        """ Prints the two pretty tables """
+        """ Prints the three pretty tables """
         student_pt: PrettyTable = PrettyTable(
             field_names=['CWID', 'Name', 'Major',
                          'Completed Courses', 'Remaining Required',
