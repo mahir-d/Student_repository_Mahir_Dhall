@@ -11,7 +11,7 @@
 
 from collections import defaultdict
 from os.path import isfile
-from typing import DefaultDict, IO, Iterator, List
+from typing import DefaultDict, IO, Iterator, List, Tuple
 from prettytable import PrettyTable
 from os import path
 
@@ -85,17 +85,19 @@ class University:
 
         self.student_list: dict(str, "Student") = {}
         self.instructor_list: dict(str, "Instructor") = {}
+        self.majors_list: dict(str, "Majors") = {}
         self.course_list: List[str] = []
         self.get_student_data()
         self.get_instructor_data()
         self.parse_grade_data()
+        self.parse_majors_data()
         # self.print_pretty_table()
 
     def get_instructor_data(self) -> None:
         """ Parses the instructors.txt file in the directory """
         for instructor in self.fr.file_reader(
-            f'{self.directory_path}/instructors.txt', 3, '\t',
-                False):
+            f'{self.directory_path}/instructors.txt', 3, '|',
+                True):
             new_instructor: "Instructor" = Instructor(
                 instructor[0], instructor[1], instructor[2])
             self.instructor_list[instructor[0]] = new_instructor
@@ -103,7 +105,7 @@ class University:
     def get_student_data(self) -> None:
         """ Parses the students.txt file in the directory """
         for student in self.fr.file_reader(
-                f'{self.directory_path}/students.txt', 3, '\t', False):
+                f'{self.directory_path}/students.txt', 3, ';', True):
             new_student: "Student" = Student(
                 student[0], student[1], student[2])
             self.student_list[student[0]] = new_student
@@ -111,7 +113,7 @@ class University:
     def parse_grade_data(self) -> None:
         """ Parses the grade.txt file in the directory """
         for courses in self.fr.file_reader(
-                f'{self.directory_path}/grades.txt', 4, '\t', False):
+                f'{self.directory_path}/grades.txt', 4, '|', True):
             if courses[0] not in self.student_list:
                 raise ValueError(
                     f"Error: Student not found with the given CWID\
@@ -119,7 +121,7 @@ class University:
             course_name: str = courses[1]
 
             student_obj: "Student" = self.student_list[courses[0]]
-            student_obj.course_list.append(course_name)
+            student_obj.course_list.append((course_name, courses[2]))
 
             if courses[3] not in self.instructor_list:
                 raise ValueError(
@@ -128,15 +130,34 @@ class University:
             instructor_obj: "Instructor" = self.instructor_list[courses[3]]
             instructor_obj.course_dict[courses[1]] += 1
 
+    def parse_majors_data(self) -> None:
+        for major in self.fr.file_reader(f'{self.directory_path}/majors.txt',
+                                         3, '\t', True):
+
+            if major[0] not in self.majors_list:
+                new_major_obj: "Majors" = Majors(major[0])
+                self.majors_list[major[0]] = new_major_obj
+                if major[1] == 'R':
+                    new_major_obj.required_courses.append(major[2])
+                else:
+                    new_major_obj.electives_courses.append(major[2])
+            else:
+                major_obj: "Majors" = self.majors_list[major[0]]
+                if major[1] == 'R':
+                    major_obj.required_courses.append(major[2])
+                else:
+                    major_obj.electives_courses.append(major[2])
+
     def print_pretty_table(self) -> None:
         """ Prints the two pretty tables """
         student_pt: PrettyTable = PrettyTable(
             field_names=['CWID', 'Name',
-                         'Major'])
+                         'Completed Courses'])
         for cwid in self.student_list:
             student_obj: "Student" = self.student_list[cwid]
             student_pt.add_row([student_obj.CWID, student_obj.Name,
-                                sorted(student_obj.course_list)])
+                                sorted([course[0] for course in
+                                        student_obj.course_list])])
         print('Student Summary')
         print(student_pt)
 
@@ -153,6 +174,26 @@ class University:
         print('Instructor Summary')
         print(instructor_pt)
 
+        majors_pt: PrettyTable = PrettyTable(
+            field_names=['Major', 'Required Courses', 'Electives']
+        )
+
+        for major in self.majors_list:
+            curr_major_obj: "Majors" = self.majors_list[major]
+            majors_pt.add_row([curr_major_obj.Name, sorted(
+                curr_major_obj.required_courses),
+                sorted(curr_major_obj.electives_courses)])
+        print(majors_pt)
+
+
+class Majors:
+    """ This class stores all information related to a Majors courses """
+
+    def __init__(self, Name: str) -> None:
+        self.Name: str = Name
+        self.required_courses: List[str] = []
+        self.electives_courses: List[str] = []
+
 
 class Student:
     """ This class stores all information related to a student """
@@ -162,7 +203,7 @@ class Student:
         self.CWID: str = CWID
         self.Name: str = Name
         self.Major: str = Major
-        self.course_list: List[str] = []
+        self.course_list: List[Tuple(str, str)] = []
 
 
 class Instructor:
@@ -175,3 +216,12 @@ class Instructor:
         self.Name = Name
         self.Department = Department
         self.course_dict: DefaultDict[str:int] = defaultdict(int)
+
+
+def main():
+    uni = University('my_directory')
+    uni.print_pretty_table()
+
+
+if __name__ == "__main__":
+    main()
