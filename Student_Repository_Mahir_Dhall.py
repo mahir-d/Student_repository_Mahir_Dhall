@@ -10,7 +10,6 @@
 
 
 from collections import defaultdict
-from os.path import isfile
 from typing import DefaultDict, IO, Iterator, List, Tuple
 from prettytable import PrettyTable
 from os import path
@@ -19,6 +18,7 @@ from os import path
 class FileReader:
     """ This class contains file reader function to parse data from the input
         files
+        Function - print_pretty_table() to print the three pretty tables
     """
 
     def valid_string(self, string: str) -> bool:
@@ -256,12 +256,3 @@ class Instructor:
         self.Name = Name
         self.Department = Department
         self.course_dict: DefaultDict[str:int] = defaultdict(int)
-
-
-def main():
-    uni = University('my_directory')
-    uni.print_pretty_table()
-
-
-if __name__ == "__main__":
-    main()

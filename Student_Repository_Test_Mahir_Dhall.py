@@ -1,9 +1,10 @@
 """
 Test File for Student Repository
 Author: Mahir Dhall
-This file contains all test functions for homework09
+This file contains all test functions for homework10
+
+Un-comment line 300 to print the three pretty tables
 """
-from os import chdir
 from typing import IO
 import unittest
 import os as os
@@ -296,7 +297,7 @@ class TestHomework7(unittest.TestCase):
         instrucor_obj: "Instructor" = valid_university.instructor_list['98764']
         self.assertEqual(instrucor_obj.course_dict['SSW 687'], 3)
 
-        valid_university.print_pretty_table()
+        # valid_university.print_pretty_table()
 
     def test_invalid_directory(self) -> None:
         """ This tests all invalid directories with erroneous inputs to check
