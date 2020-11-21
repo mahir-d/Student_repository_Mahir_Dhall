@@ -1,6 +1,6 @@
 """
     Author: Mahir Dhall
-    Name: Homework10
+    Name: Homework11
     Description: This class creates a data repository of courses, students,
     and instructors. The system will be used to help students track their
     required courses, the courses they have successfully completed,
@@ -10,9 +10,11 @@
 
 
 from collections import defaultdict
+import sqlite3
 from typing import DefaultDict, IO, Iterator, List, Tuple
 from prettytable import PrettyTable
 from os import path
+import sqlite3
 
 
 class FileReader:
@@ -97,12 +99,12 @@ class University:
         self.calculate_gpa()
         self.parse_majors_data()
         self.oragnize_student_courses()
-        # self.print_pretty_table()
+        self.print_pretty_table()
 
     def get_instructor_data(self) -> None:
         """ Parses the instructors.txt file in the directory """
         for instructor in self.fr.file_reader(
-            f'{self.directory_path}/instructors.txt', 3, '|',
+            f'{self.directory_path}/instructors.txt', 3, '\t',
                 True):
             new_instructor: "Instructor" = Instructor(
                 instructor[0], instructor[1], instructor[2])
@@ -111,7 +113,7 @@ class University:
     def get_student_data(self) -> None:
         """ Parses the students.txt file in the directory """
         for student in self.fr.file_reader(
-                f'{self.directory_path}/students.txt', 3, ';', True):
+                f'{self.directory_path}/students.txt', 3, '\t', True):
             new_student: "Student" = Student(
                 student[0], student[1], student[2])
             self.student_list[student[0]] = new_student
@@ -119,7 +121,7 @@ class University:
     def parse_grade_data(self) -> None:
         """ Parses the grade.txt file in the directory """
         for courses in self.fr.file_reader(
-                f'{self.directory_path}/grades.txt', 4, '|', True):
+                f'{self.directory_path}/grades.txt', 4, '\t', True):
             if courses[0] not in self.student_list:
                 raise ValueError(
                     f"Error: Student not found with the given CWID\
@@ -179,6 +181,25 @@ class University:
             student_obj.remaining_electives =\
                 list(set(majors_obj.electives_courses) -
                      set(student_obj.completed_courses))
+
+    def student_grades_table_db(self, db_path: str) -> None:
+        """ Prints the pretty table from the student grade summary table """
+        fr: "FileReader" = FileReader()
+        fr.valid_string(db_path)
+        db = sqlite3.connect(db_path)
+        query: str = """select s.Name, s.CWID, g.Grade, g.Course, i.Name
+                        from students as s join grades as g on\
+                            s.CWID = g.StudentCWID join instructors\
+                                i on g.InstructorCWID = i.CWID
+                                order by s.Name """
+        pt: "PrettyTable" = PrettyTable(field_names=['Name', 'CWID', 'Course',
+                                                     'Grade', 'Instructor'])
+        for row in db.execute(query):
+            pt.add_row([row[0], row[1], row[2], row[3], row[4]])
+
+        db.close()
+        print('Student Grade Summary')
+        print(pt)
 
     def print_pretty_table(self) -> None:
         """ Prints the three pretty tables """
@@ -256,3 +277,15 @@ class Instructor:
         self.Name = Name
         self.Department = Department
         self.course_dict: DefaultDict[str:int] = defaultdict(int)
+
+
+def main():
+    uni = University(
+        '/Users/mahirdhall/Documents/Student_repository_Mahir_Dhall/hw11Direc')
+    uni.print_pretty_table()
+    uni.student_grades_table_db(
+        '/Users/mahirdhall/Documents/Student_repository_Mahir_Dhall/810_startup.db')
+
+
+if __name__ == "__main__":
+    main()
