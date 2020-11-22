@@ -99,7 +99,7 @@ class University:
         self.calculate_gpa()
         self.parse_majors_data()
         self.oragnize_student_courses()
-        self.print_pretty_table()
+        # self.print_pretty_table()
 
     def get_instructor_data(self) -> None:
         """ Parses the instructors.txt file in the directory """
@@ -187,8 +187,8 @@ class University:
         fr: "FileReader" = FileReader()
         fr.valid_string(db_path)
         try:
-            db = sqlite3.connect(db_path)
-        except sqlite3.OperationalError as e:
+            db: sqlite3.Connection = sqlite3.connect(db_path)
+        except Exception as e:
             print(e)
         else:
             query: str = """select s.Name, s.CWID, g.Grade, g.Course, i.Name
@@ -201,7 +201,9 @@ class University:
                                          'Course',
                                          'Grade', 'Instructor'])
             try:
+                result_list: List[List[Tuple]] = []
                 for row in db.execute(query):
+                    result_list.append(row)
                     pt.add_row([row[0], row[1], row[2], row[3], row[4]])
 
                 db.close()
@@ -287,15 +289,3 @@ class Instructor:
         self.Name = Name
         self.Department = Department
         self.course_dict: DefaultDict[str:int] = defaultdict(int)
-
-
-def main():
-    uni = University(
-        '/Users/mahirdhall/Documents/Student_repository_Mahir_Dhall/hw11Direc')
-    uni.print_pretty_table()
-    uni.student_grades_table_db(
-        '/Users/mahirdhall/Documents/Student_repository_Mahir_Dhall/810_startup.db')
-
-
-if __name__ == "__main__":
-    main()

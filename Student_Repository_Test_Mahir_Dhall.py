@@ -3,11 +3,12 @@ Test File for Student Repository
 Author: Mahir Dhall
 This file contains all test functions for homework10
 
-Un-comment line 300 to print the three pretty tables
+Un-comment line 302 to print the three pretty tables
 """
-from typing import IO
+from typing import IO, List, Tuple
 import unittest
 import os as os
+import sqlite3
 
 from Student_Repository_Mahir_Dhall import Instructor, University, Student
 
@@ -319,7 +320,39 @@ class TestHomework7(unittest.TestCase):
         """ This tests the student_grades_table_db function for it correct
             implementation
         """
-        uniUniversity
+        try:
+            db: sqlite3.Connection = sqlite3.connect('810_startup.db')
+        except Exception as e:
+            print(e)
+        else:
+            query: str = """select s.Name, s.CWID, g.Grade, g.Course, i.Name
+                            from students as s join grades as g on\
+                                s.CWID = g.StudentCWID join instructors\
+                                    i on g.InstructorCWID = i.CWID
+                                    order by s.Name """
+            try:
+                result_list: List[List[Tuple]] = []
+                for row in db.execute(query):
+                    result_list.append(row)
+                db.close()
+
+                self.assertEqual(result_list,
+                                 [('Bezos, J', '10115', 'A', 'SSW 810',
+                                   'Rowland, J'),
+                                  ('Bezos, J', '10115', 'F', 'CS 546',
+                                   'Hawking, S'), ('Gates, B', '11714', 'A',
+                                                   'CS 546', 'Cohen, R'),
+                                  ('Gates, B', '11714', 'B-', 'SSW 810',
+                                   'Rowland, J'), ('Gates, B', '11714', 'A-',
+                                                   'CS 570', 'Hawking, S'),
+                                  ('Jobs, S', '10103', 'A-', 'SSW 810',
+                                   'Rowland, J'), ('Jobs, S', '10103', 'B',
+                                                   'CS 501', 'Hawking, S'),
+                                  ('Musk, E', '10183', 'A', 'SSW 555',
+                                   'Rowland, J'), ('Musk, E', '10183', 'A',
+                                                   'SSW 810', 'Rowland, J')])
+            except sqlite3.OperationalError as e:
+                print(e)
 
 
 if __name__ == "__main__":
