@@ -13,7 +13,7 @@ from collections import defaultdict
 import sqlite3
 from typing import DefaultDict, IO, Iterator, List, Tuple
 from prettytable import PrettyTable
-from os import path
+from os import getcwd, path
 import sqlite3
 
 
@@ -187,7 +187,8 @@ class University:
         fr: "FileReader" = FileReader()
         fr.valid_string(db_path)
         try:
-            db: sqlite3.Connection = sqlite3.connect(db_path)
+            path: str = f"{getcwd()}/{db_path}"
+            db: sqlite3.Connection = sqlite3.connect(path)
         except Exception as e:
             print(e)
         else:

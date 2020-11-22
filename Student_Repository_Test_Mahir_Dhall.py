@@ -5,6 +5,7 @@ This file contains all test functions for homework10
 
 Un-comment line 302 to print the three pretty tables
 """
+from os import getcwd
 from typing import IO, List, Tuple
 import unittest
 import os as os
@@ -321,7 +322,8 @@ class TestHomework7(unittest.TestCase):
             implementation
         """
         try:
-            db: sqlite3.Connection = sqlite3.connect('810_startup.db')
+            path: str = f"{getcwd()}/810_startup.db"
+            db: sqlite3.Connection = sqlite3.connect(path)
         except Exception as e:
             print(e)
         else:
