@@ -189,7 +189,7 @@ class University:
         try:
             path: str = f"{getcwd()}/{db_path}"
             db: sqlite3.Connection = sqlite3.connect(path)
-        except Exception as e:
+        except (FileNotFoundError, ValueError) as e:
             print(e)
         else:
             query: str = """select s.Name, s.CWID, g.Grade, g.Course, i.Name
@@ -206,12 +206,12 @@ class University:
                 for row in db.execute(query):
                     result_list.append(row)
                     pt.add_row([row[0], row[1], row[2], row[3], row[4]])
-
+            except sqlite3.OperationalError as e:
+                print(e)
+            else:
                 db.close()
                 print('Student Grade Summary')
                 print(pt)
-            except sqlite3.OperationalError as e:
-                print(e)
 
     def print_pretty_table(self) -> None:
         """ Prints the three pretty tables """
