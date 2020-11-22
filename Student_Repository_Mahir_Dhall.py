@@ -186,20 +186,29 @@ class University:
         """ Prints the pretty table from the student grade summary table """
         fr: "FileReader" = FileReader()
         fr.valid_string(db_path)
-        db = sqlite3.connect(db_path)
-        query: str = """select s.Name, s.CWID, g.Grade, g.Course, i.Name
-                        from students as s join grades as g on\
-                            s.CWID = g.StudentCWID join instructors\
-                                i on g.InstructorCWID = i.CWID
-                                order by s.Name """
-        pt: "PrettyTable" = PrettyTable(field_names=['Name', 'CWID', 'Course',
-                                                     'Grade', 'Instructor'])
-        for row in db.execute(query):
-            pt.add_row([row[0], row[1], row[2], row[3], row[4]])
+        try:
+            db = sqlite3.connect(db_path)
+        except sqlite3.OperationalError as e:
+            print(e)
+        else:
+            query: str = """select s.Name, s.CWID, g.Grade, g.Course, i.Name
+                            from students as s join grades as g on\
+                                s.CWID = g.StudentCWID join instructors\
+                                    i on g.InstructorCWID = i.CWID
+                                    order by s.Name """
+            pt: "PrettyTable" =\
+                PrettyTable(field_names=['Name', 'CWID',
+                                         'Course',
+                                         'Grade', 'Instructor'])
+            try:
+                for row in db.execute(query):
+                    pt.add_row([row[0], row[1], row[2], row[3], row[4]])
 
-        db.close()
-        print('Student Grade Summary')
-        print(pt)
+                db.close()
+                print('Student Grade Summary')
+                print(pt)
+            except sqlite3.OperationalError as e:
+                print(e)
 
     def print_pretty_table(self) -> None:
         """ Prints the three pretty tables """
@@ -240,6 +249,7 @@ class University:
             majors_pt.add_row([curr_major_obj.Name, sorted(
                 curr_major_obj.required_courses),
                 sorted(curr_major_obj.electives_courses)])
+        print('Major Summary')
         print(majors_pt)
 
 
