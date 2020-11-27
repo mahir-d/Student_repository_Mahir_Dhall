@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block body %}
+
+<h2>{{ my_header }}</h2>
+
+<table border="1">
+    <th>Student</th>
+    <th>CWID</th>
+    <th>Course</th>
+    <th>Grade</th>
+    <th>Instructor</th>
+
+    {% for student_obj in students %}
+    <tr>
+        <td>{{student_obj[0]}}</td>
+        <td>{{student_obj[1]}}</td>
+        <td>{{student_obj[2]}}</td>
+        <td>{{student_obj[3]}}</td>
+        <td>{{student_obj[4]}}</td>
+    </tr>
+    {% endfor %}
+
+</table>
+{% endblock %}
