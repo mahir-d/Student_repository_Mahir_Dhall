@@ -43,6 +43,7 @@ def template_root_route() -> str:
      """
     return render_template('student_table.html',
                            my_header="Student Summary",
+                           my_header2="Student, CWID,Course,Grade, Instructor",
                            students=run_query())
 
 
@@ -53,6 +54,7 @@ def template_demo() -> str:
     """
     return render_template('student_table.html',
                            my_header="Student Summary",
+                           my_header2="Student, CWID,Course,Grade, Instructor",
                            students=run_query())
 
 
