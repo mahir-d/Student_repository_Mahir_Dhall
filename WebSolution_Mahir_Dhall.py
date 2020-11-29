@@ -2,7 +2,7 @@
     Author: Mahir Dhall
     Name: Homework12
     Description: This class creates a web server using Flask to display
-                 the student summary table using data from sqlite3 database.                
+                 the student summary table using data from sqlite3 database.
 """
 from typing import List, Tuple
 import sqlite3
@@ -15,7 +15,7 @@ def run_query() -> List[List[Tuple]]:
         to display the student summary table.
     """
     try:
-        path: str = f"hw11Direc/810_startup.db"
+        path: str = f"810_startup.db"
         db: sqlite3.Connection = sqlite3.connect(path)
     except (FileNotFoundError, ValueError) as e:
         print(e)
@@ -34,6 +34,16 @@ def run_query() -> List[List[Tuple]]:
         else:
             db.close()
             return result_list
+
+
+@app.route('/')
+def template_root_route() -> str:
+    """ This function creates an html template to display student summary
+       table at route /
+     """
+    return render_template('student_table.html',
+                           my_header="Student Summary",
+                           students=run_query())
 
 
 @app.route('/student_summary')
