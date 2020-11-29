@@ -1,13 +1,13 @@
 """
     Author: Mahir Dhall
-    Name: Homework12
+    Name: Homework 12
     Description: This class creates a web server using Flask to display
                  the student summary table using data from sqlite3 database.
 """
 from typing import List, Tuple
 import sqlite3
 from flask import Flask, render_template
-app: Flask = Flask(__name__, template_folder='templates')
+app: Flask = Flask(__name__)
 
 
 def run_query() -> List[List[Tuple]]:
